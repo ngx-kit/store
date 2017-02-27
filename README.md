@@ -1,4 +1,4 @@
-# DStore
+# Angular DStore (ng-dstore)
 
 Immutable store for Angular with fancy decorators.
 
