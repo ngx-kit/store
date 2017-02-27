@@ -106,6 +106,8 @@ export class AuthActions {
   @UpdateCollectionItem(['clients'])
   static assignClient(changes: {id: number, assignedTo: number}) {
     return (client) => {
+      // Here you gets client model from store and should return updated value.
+      // immutable will be provided by Immutable.js
       return Object.assign(client, {assignedTo: changes.assignedTo, archived: false});
     };
   }
