@@ -21,41 +21,6 @@ Import provides service with scope `app` and initial state `{started: false}`
   ...
 ```
 
-## Examples
-
-### Actions
-
-```typescript
-...
-
-export class AuthActions {
-
-  @SetProp(['account'])
-  static setAccount(account: CompanyAccountModel) {
-    return account;
-  }
-
-  @SetProp(['isAuth'])
-  static setIsAuth(isAuth: boolean) {
-    return isAuth;
-  }
-
-  @SetProp(['account', 'live'])
-  static setLive(live: boolean) {
-    return live;
-  }
-  
-  @UpdateCollectionItem(['clients'])
-  static assignClient(changes: {id: number, assignedTo: number}) {
-    return (client) => {
-      return Object.assign(client, {assignedTo: changes.assignedTo, archived: false});
-    };
-  }
-  
-  ...
-}
-```
-
 ## Create Actions
 
 TBD
@@ -111,6 +76,41 @@ constructor(private store: Store) {
 ...
 someMethod() {
   const value = this.store.value(SelectorsClass.value();
+}
+```
+
+## Examples
+
+### Actions
+
+```typescript
+...
+
+export class AuthActions {
+
+  @SetProp(['account'])
+  static setAccount(account: CompanyAccountModel) {
+    return account;
+  }
+
+  @SetProp(['isAuth'])
+  static setIsAuth(isAuth: boolean) {
+    return isAuth;
+  }
+
+  @SetProp(['account', 'live'])
+  static setLive(live: boolean) {
+    return live;
+  }
+  
+  @UpdateCollectionItem(['clients'])
+  static assignClient(changes: {id: number, assignedTo: number}) {
+    return (client) => {
+      return Object.assign(client, {assignedTo: changes.assignedTo, archived: false});
+    };
+  }
+  
+  ...
 }
 ```
 
