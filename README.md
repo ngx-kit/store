@@ -1,6 +1,6 @@
-# Angular DStore (ng-dstore)
+# Angular Store
 
-Immutable store for Angular with fancy decorators.
+Immutable store for Angular 2+ with fancy decorators.
 
 ## Install
 
