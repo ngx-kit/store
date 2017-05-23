@@ -4,9 +4,22 @@ Immutable store for Angular 2+ with fancy decorators.
 
 ## Install
 
-`npm install @ngx-kit/store --save`
+`npm install @ngx-kit/store immutable --save`
 
 ## Usage
+
+### Provide immutable
+
+#### Angular-cli
+
+Add this row to `.angular-cli.json`:
+
+```
+"scripts": [
+  ...
+  "../node_modules/immutable/dist/immutable.js",
+]
+```
 
 ### Import Module
 
