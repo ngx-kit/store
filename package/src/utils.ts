@@ -10,9 +10,9 @@ declare const Immutable: any;
  * @param rightChain
  * @returns {boolean}
  */
-export function deepCompare(leftChain, rightChain) {
+export function deepCompare(leftChain: any, rightChain: any) {
   let i, l;
-  const compare2Objects = (x, y) => {
+  const compare2Objects = (x: any, y: any) => {
     let p;
     if (isNaN(x) && isNaN(y) && typeof x === 'number' && typeof y === 'number') {
       return true;
@@ -45,16 +45,14 @@ export function deepCompare(leftChain, rightChain) {
     for (p in y) {
       if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
         return false;
-      }
-      else if (typeof y[p] !== typeof x[p]) {
+      } else if (typeof y[p] !== typeof x[p]) {
         return false;
       }
     }
     for (p in x) {
       if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
         return false;
-      }
-      else if (typeof y[p] !== typeof x[p]) {
+      } else if (typeof y[p] !== typeof x[p]) {
         return false;
       }
       switch (typeof (x[p])) {
@@ -102,7 +100,7 @@ export function deepCompare(leftChain, rightChain) {
  * @param keyPath
  * @returns {any}
  */
-export function originalMapperWrapper(original, props: any[], state?, keyPath?) {
+export function originalMapperWrapper(original: any, props: any[], state?: any, keyPath?: any) {
   const originalMapper = original.apply(this, props);
   if (typeof originalMapper === 'function') {
     if (state) {
@@ -111,12 +109,10 @@ export function originalMapperWrapper(original, props: any[], state?, keyPath?) 
         localState = localState.toJS();
       }
       return originalMapper(localState);
-    }
-    else {
+    } else {
       return originalMapper();
     }
-  }
-  else {
+  } else {
     return originalMapper;
   }
 }
@@ -129,11 +125,10 @@ export function originalMapperWrapper(original, props: any[], state?, keyPath?) 
  * @param value
  * @returns {any}
  */
-export function stateMergeOrSet(state, keyPath, value) {
+export function stateMergeOrSet(state: any, keyPath: any, value: any) {
   if (state.getIn(keyPath)) {
     return state.mergeDeepIn(keyPath, Immutable.fromJS(value));
-  }
-  else {
+  } else {
     return state.setIn(keyPath, Immutable.fromJS(value));
   }
 }

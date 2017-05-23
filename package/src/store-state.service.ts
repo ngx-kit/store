@@ -3,8 +3,7 @@ import { BehaviorSubject } from "rxjs";
 
 import { deepCompare } from './utils';
 import { StoreConfigService } from './store-config.service';
-import { ScopePath } from './interfaces';
-import { StoreLogger } from './';
+import { ScopePath, StoreLogger } from './interfaces';
 
 export const storeLogger = new InjectionToken('storeLogger');
 
@@ -48,7 +47,7 @@ export class StoreStateService {
         this.log('InitialState', initialState);
       }
       this.states[scope] = new BehaviorSubject<any>(Immutable.fromJS(initialState));
-      this.states[scope].subscribe(state => {
+      this.states[scope].subscribe((state: any) => {
         this.log(`=== State Updated [${scope}] ===`);
         this.log('State', state.toJS());
       });
@@ -62,18 +61,18 @@ export class StoreStateService {
    * @param mapper
    * @returns {Observable<T>}
    */
-  stream = (scopePath: ScopePath, mapper): any => {
+  stream = (scopePath: ScopePath, mapper: any): any => {
     const scope = scopePath.join('/');
     if (!this.states[scope]) {
       throw new Error(`Scope "${scope}" not found!`);
     }
     let state$ = this.states[scope];
     return state$
-        .do(state => this.log(`○ Stream side effect`, mapper))
+        .do((state: any) => this.log(`○ Stream side effect`, mapper))
         .map(mapper.mapper)
-        .filter(x => typeof x !== 'undefined')
+        .filter((x: any) => typeof x !== 'undefined')
         .distinctUntilChanged(deepCompare)
-        .do(state => this.log(`► After distinct side effect`, state))
+        .do((state: any) => this.log(`► After distinct side effect`, state))
         .publishReplay(1)
         .refCount();
   };
@@ -85,7 +84,7 @@ export class StoreStateService {
    * @param mapper
    * @returns {Array|any}
    */
-  value = (scopePath: ScopePath, mapper): any => {
+  value = (scopePath: ScopePath, mapper: any): any => {
     const scope = scopePath.join('/');
     if (!this.states[scope]) {
       throw new Error(`Scope "${scope}" not found!`);
@@ -100,7 +99,7 @@ export class StoreStateService {
    * @param scopePath ScopePath
    * @param reducer
    */
-  dispatch = (scopePath: ScopePath, reducer) => {
+  dispatch = (scopePath: ScopePath, reducer: any) => {
     const scope = scopePath.join('/');
     if (!this.states[scope]) {
       throw new Error(`Scope "${scope}" not found!`);
@@ -138,7 +137,7 @@ export class StoreStateService {
    * @param message
    * @param params
    */
-  private log(message, ...params) {
+  private log(message: string | number, ...params: any[]) {
     if (this.config.isDebug()) {
       if (this.logger) {
         this.logger.log(message, this.logId, ...params);

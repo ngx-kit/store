@@ -4,7 +4,7 @@ Immutable store for Angular 2+ with fancy decorators.
 
 ## Install
 
-TBD
+`npm install @ngx-kit/store --save`
 
 ## Usage
 

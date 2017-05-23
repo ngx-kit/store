@@ -14,14 +14,14 @@ declare const Immutable: any;
 export function SelectProp(keyPath: string[]) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     let original = descriptor.value;
-    descriptor.value = (...props) => {
+    descriptor.value = (...props: any[]) => {
       let originalMapper = original.apply(this, props);
       return {
         selector: 'SelectProp',
         selectorProps: [keyPath],
         caller: `${target.constructor.name}.${propertyKey}`,
         callerProps: props,
-        mapper: (state) => {
+        mapper: (state: any) => {
           let mapped = state.getIn(keyPath);
           if (Immutable.Iterable.isIterable(mapped)) {
             mapped = mapped.toJS();
@@ -47,15 +47,15 @@ export function SelectProp(keyPath: string[]) {
 export function SelectPropCombined(keyPaths: string[][], indexKey = 'id') {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     let original = descriptor.value;
-    descriptor.value = (...props) => {
+    descriptor.value = (...props: any[]) => {
       let originalMapper = original.apply(this, props);
       return {
         selector: 'SelectPropCombined',
         selectorProps: [keyPaths, indexKey],
         caller: `${target.constructor.name}.${propertyKey}`,
         callerProps: props,
-        mapper: (state) => {
-          let mapped = [];
+        mapper: (state: any) => {
+          let mapped: any[] = [];
           keyPaths.forEach(keyPath => {
             let mappedEntry = state.getIn(keyPath);
             if (Immutable.Iterable.isIterable(mappedEntry)) {
@@ -84,17 +84,17 @@ export function SelectPropCombined(keyPaths: string[][], indexKey = 'id') {
 export function SelectCollectionKeys(keyPath: string[], indexKey = 'id') {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     let original = descriptor.value;
-    descriptor.value = (...props) => {
+    descriptor.value = (...props: any[]) => {
       let originalMapper = original.apply(this, props);
       return {
         selector: 'SelectCollectionKeys',
         selectorProps: [keyPath, indexKey],
         caller: `${target.constructor.name}.${propertyKey}`,
         callerProps: props,
-        mapper: (state) => {
+        mapper: (state: any) => {
           const collection = state.getIn(keyPath);
           const keys = Immutable.Iterable.isIterable(collection)
-              ? collection.map(_ => _.get(indexKey)).toJS()
+              ? collection.map((_: any) => _.get(indexKey)).toJS()
               : [];
           return originalMapper
               ? originalMapper(keys)
@@ -118,18 +118,18 @@ export function SelectCollectionKeys(keyPath: string[], indexKey = 'id') {
 export function SelectCollectionItem(keyPath: string[], indexKey = 'id', strict = false) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     let original = descriptor.value;
-    descriptor.value = (...props) => {
+    descriptor.value = (...props: any[]) => {
       let originalMapper = original.apply(this, props);
       return {
         selector: 'SelectCollectionItem',
         selectorProps: [keyPath, indexKey],
         caller: `${target.constructor.name}.${propertyKey}`,
         callerProps: props,
-        mapper: (state) => {
+        mapper: (state: any) => {
           if (typeof props[0] === 'undefined') {
             throw new Error(`You should pass ${indexKey} by first param in selector`);
           }
-          const item = state.getIn(keyPath).find(x => x.get(indexKey) === props[0]);
+          const item = state.getIn(keyPath).find((x: any) => x.get(indexKey) === props[0]);
           const jsItem = Immutable.Iterable.isIterable(item)
               ? item.toJS()
               : null;
@@ -157,13 +157,13 @@ export function SelectCollectionItem(keyPath: string[], indexKey = 'id', strict 
 export function SetProp(keyPath: string[]) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     let original = descriptor.value;
-    descriptor.value = (...props) => {
+    descriptor.value = (...props: any[]) => {
       return {
         setter: 'SetProp',
         setterProps: [keyPath],
         caller: `${target.constructor.name}.${propertyKey}`,
         callerProps: props,
-        reducer: (state) => {
+        reducer: (state: any) => {
           const value = originalMapperWrapper(original, props, state, keyPath);
           return state.setIn(keyPath, Immutable.fromJS(value));
         },
@@ -183,13 +183,13 @@ export function SetProp(keyPath: string[]) {
 export function UpdateProp(keyPath: string[]) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     let original = descriptor.value;
-    descriptor.value = (...props) => {
+    descriptor.value = (...props: any[]) => {
       return {
         setter: 'MergeObject',
         setterProps: [keyPath],
         caller: `${target.constructor.name}.${propertyKey}`,
         callerProps: props,
-        reducer: (state) => {
+        reducer: (state: any) => {
           const value = originalMapperWrapper(original, props, state, keyPath);
           return stateMergeOrSet(state, keyPath, value);
         },
@@ -210,15 +210,15 @@ export function UpdateProp(keyPath: string[]) {
 export function SetCollectionItem(keyPath: string[], indexKey = 'id') {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     let original = descriptor.value;
-    descriptor.value = (prop) => {
+    descriptor.value = (prop: any) => {
       return {
         setter: 'SetCollectionItem',
         setterProps: [keyPath, indexKey],
         caller: `${target.constructor.name}.${propertyKey}`,
         callerProps: prop,
-        reducer: (state) => {
+        reducer: (state: any) => {
           const collection = state.getIn(keyPath);
-          const index = collection.findIndex(x => x.get(indexKey) == prop[indexKey]);
+          const index = collection.findIndex((x: any) => x.get(indexKey) == prop[indexKey]);
           if (index !== -1) {
             const item = originalMapperWrapper(original, [prop], state, [...keyPath, index]);
             return state.setIn([...keyPath, index], Immutable.fromJS(item));
@@ -246,20 +246,20 @@ export function SetCollectionItem(keyPath: string[], indexKey = 'id') {
 export function UpdateCollectionItem(keyPath: string[], indexKey = 'id', strict = false) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     let original = descriptor.value;
-    descriptor.value = (prop) => {
+    descriptor.value = (prop: any) => {
       return {
         setter: 'UpdateCollectionItem',
         setterProps: [keyPath, indexKey],
         caller: `${target.constructor.name}.${propertyKey}`,
         callerProps: prop,
-        reducer: (state) => {
+        reducer: (state: any) => {
           if (prop[indexKey] === undefined) {
             console.error('prop[indexKey] is undefined');
             console.error('prop', prop);
             console.error('indexKey', indexKey);
           }
           const collection = state.getIn(keyPath);
-          const index = collection.findIndex(x => x.get(indexKey) == prop[indexKey]);
+          const index = collection.findIndex((x: any) => x.get(indexKey) == prop[indexKey]);
           if (index !== -1) {
             const item = originalMapperWrapper(original, [prop], state, [...keyPath, index]);
             return stateMergeOrSet(state, [...keyPath, index], item);
@@ -288,13 +288,13 @@ export function UpdateCollectionItem(keyPath: string[], indexKey = 'id', strict 
 export function DeleteCollectionItem(keyPath: string[], indexKey = 'id', strict = false) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     let original = descriptor.value;
-    descriptor.value = (prop) => {
+    descriptor.value = (prop: any) => {
       return {
         setter: 'DeleteCollectionItem',
         setterProps: [keyPath, indexKey],
         caller: `${target.constructor.name}.${propertyKey}`,
         callerProps: prop,
-        reducer: (state) => {
+        reducer: (state: any) => {
           if (prop[indexKey] === undefined) {
             console.error('prop[indexKey] is undefined');
             console.error('prop', prop);
@@ -302,7 +302,7 @@ export function DeleteCollectionItem(keyPath: string[], indexKey = 'id', strict 
           }
           const collection = state.getIn(keyPath);
           const item = originalMapperWrapper(original, [prop], collection, keyPath);
-          const index = collection.findIndex(x => x.get(indexKey) == item[indexKey]);
+          const index = collection.findIndex((x: any) => x.get(indexKey) == item[indexKey]);
           if (index !== -1) {
             return state.deleteIn([...keyPath, index]);
           } else if (strict) {
@@ -329,19 +329,19 @@ export function DeleteCollectionItem(keyPath: string[], indexKey = 'id', strict 
 export function UpdateCollection(keyPath: string[], indexKey = 'id') {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     let original = descriptor.value;
-    descriptor.value = (...props) => {
+    descriptor.value = (...props: any[]) => {
       return {
         setter: 'UpdateCollection',
         setterProps: [keyPath, indexKey],
         caller: `${target.constructor.name}.${propertyKey}`,
         callerProps: props,
-        reducer: (state) => {
+        reducer: (state: any) => {
           const collection = state.getIn(keyPath);
           // @todo check wrapper passed collection
           const updates = originalMapperWrapper(original, props, collection, keyPath);
           let result = collection;
-          updates.forEach(update => {
-            let index = collection.findIndex(x => x.get(indexKey) == update[indexKey]);
+          updates.forEach((update: any) => {
+            let index = collection.findIndex((x: any) => x.get(indexKey) == update[indexKey]);
             result = index !== -1
                 ? result.set(index, Immutable.fromJS(update))
                 : result.push(Immutable.fromJS(update));

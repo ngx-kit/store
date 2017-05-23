@@ -12,8 +12,11 @@
     "type": "git"
   },
   "peerDependencies": {
-    "@angular/compiler": "^4.0.3",
-    "@angular/compiler-cli": "^4.0.3",
-    "@angular/core": "^4.0.3"
+    "@angular/common": "0.0.0-ANGULAR-PLACEHOLDER",
+    "@angular/compiler": "0.0.0-ANGULAR-PLACEHOLDER",
+    "@angular/compiler-cli": "0.0.0-ANGULAR-PLACEHOLDER",
+    "@angular/core": "0.0.0-ANGULAR-PLACEHOLDER",
+    "immutable": "0.0.0-IMMUTABLE-PLACEHOLDER",
+    "rxjs": "0.0.0-RXJS-PLACEHOLDER"
   }
 }

@@ -16,7 +16,7 @@ export class Store {
     this.state.register(this.getScopePath(), this.initialState);
   }
 
-  dispatch = (reducer) => {
+  dispatch = (reducer: any) => {
     this.state.dispatch(this.getScopePath(), reducer);
   };
 
@@ -35,11 +35,11 @@ export class Store {
     return path;
   }
 
-  stream = (mapper): any => {
+  stream = (mapper: any): any => {
     return this.state.stream(this.getScopePath(), mapper);
   };
 
-  value = (mapper): any => {
+  value = (mapper: any): any => {
     return this.state.value(this.getScopePath(), mapper);
   };
 
