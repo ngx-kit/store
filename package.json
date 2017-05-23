@@ -1,6 +1,6 @@
 {
   "name": "@ngx-kit/store",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "Immutable store for Angular with fancy decorators",
   "scripts": {
     "release": "npm run release:clean && npm run release:ngc && npm run release:rollup && npm run release:copy:pkg && npm run release:copy:readme",

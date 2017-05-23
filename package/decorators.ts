@@ -2,6 +2,8 @@ import { originalMapperWrapper, stateMergeOrSet } from './utils';
 
 declare const Immutable: any;
 
+// @todo log via logger
+
 /**
  * Get property from store by path.
  *
@@ -109,10 +111,11 @@ export function SelectCollectionKeys(keyPath: string[], indexKey = 'id') {
  *
  * @param keyPath
  * @param indexKey
+ * @param strict - existent of item in collection
  * @returns {(target:any, propertyKey:string, descriptor:PropertyDescriptor)=>PropertyDescriptor}
  * @constructor
  */
-export function SelectCollectionItem(keyPath: string[], indexKey = 'id') {
+export function SelectCollectionItem(keyPath: string[], indexKey = 'id', strict = false) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     let original = descriptor.value;
     descriptor.value = (...props) => {
@@ -130,8 +133,9 @@ export function SelectCollectionItem(keyPath: string[], indexKey = 'id') {
           const jsItem = Immutable.Iterable.isIterable(item)
               ? item.toJS()
               : null;
-          if (!jsItem) {
-            console.warn('Collection Item not found', state.getIn(keyPath).toJS(), props[0]);
+          if (!jsItem && strict) {
+            console.error('Collection Item not found', state.getIn(keyPath).toJS(), props[0]);
+            throw new Error('Collection Item not found');
           }
           return originalMapper
               ? originalMapper(jsItem)
@@ -214,7 +218,6 @@ export function SetCollectionItem(keyPath: string[], indexKey = 'id') {
         callerProps: prop,
         reducer: (state) => {
           const collection = state.getIn(keyPath);
-          console.log('!! Collection', collection);
           const index = collection.findIndex(x => x.get(indexKey) == prop[indexKey]);
           if (index !== -1) {
             const item = originalMapperWrapper(original, [prop], state, [...keyPath, index]);
@@ -236,10 +239,11 @@ export function SetCollectionItem(keyPath: string[], indexKey = 'id') {
  *
  * @param keyPath
  * @param indexKey
+ * @param strict - existent of item in collection
  * @returns {(target:any, propertyKey:string, descriptor:PropertyDescriptor)=>PropertyDescriptor}
  * @constructor
  */
-export function UpdateCollectionItem(keyPath: string[], indexKey = 'id') {
+export function UpdateCollectionItem(keyPath: string[], indexKey = 'id', strict = false) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     let original = descriptor.value;
     descriptor.value = (prop) => {
@@ -259,9 +263,10 @@ export function UpdateCollectionItem(keyPath: string[], indexKey = 'id') {
           if (index !== -1) {
             const item = originalMapperWrapper(original, [prop], state, [...keyPath, index]);
             return stateMergeOrSet(state, [...keyPath, index], item);
-          }
-          else {
-            console.warn('Collection item not found', prop[indexKey], collection);
+          } else if (strict) {
+            console.error('Collection item not found', prop[indexKey], collection);
+            throw new Error('Collection item not found');
+          } else {
             return state;
           }
         },
@@ -276,28 +281,35 @@ export function UpdateCollectionItem(keyPath: string[], indexKey = 'id') {
  *
  * @param keyPath
  * @param indexKey
+ * @param strict - existent of item in collection
  * @returns {(target:any, propertyKey:string, descriptor:PropertyDescriptor)=>PropertyDescriptor}
  * @constructor
  */
-export function DeleteCollectionItem(keyPath: string[], indexKey = 'id') {
+export function DeleteCollectionItem(keyPath: string[], indexKey = 'id', strict = false) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     let original = descriptor.value;
-    descriptor.value = (...props) => {
+    descriptor.value = (prop) => {
       return {
         setter: 'DeleteCollectionItem',
         setterProps: [keyPath, indexKey],
         caller: `${target.constructor.name}.${propertyKey}`,
-        callerProps: props,
+        callerProps: prop,
         reducer: (state) => {
+          if (prop[indexKey] === undefined) {
+            console.error('prop[indexKey] is undefined');
+            console.error('prop', prop);
+            console.error('indexKey', indexKey);
+          }
           const collection = state.getIn(keyPath);
-          const item = originalMapperWrapper(original, props, collection, keyPath);
+          const item = originalMapperWrapper(original, [prop], collection, keyPath);
           const index = collection.findIndex(x => x.get(indexKey) == item[indexKey]);
           if (index !== -1) {
             return state.deleteIn([...keyPath, index]);
-          }
-          else {
-            console.error('item', item);
+          } else if (strict) {
+            console.error(`Item for deleting not found`, item);
             throw new Error(`Item for deleting not found`);
+          } else {
+            return state;
           }
         },
       }

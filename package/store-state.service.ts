@@ -1,9 +1,12 @@
-import { Injectable } from "@angular/core";
+import { Injectable, Inject, Optional, InjectionToken } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 
 import { deepCompare } from './utils';
 import { StoreConfigService } from './store-config.service';
 import { ScopePath } from './interfaces';
+import { StoreLogger } from './';
+
+export const storeLogger = new InjectionToken('storeLogger');
 
 declare const Immutable: any;
 
@@ -13,13 +16,15 @@ declare const Immutable: any;
 @Injectable()
 export class StoreStateService {
 
+  private logId = 0;
   private state$: BehaviorSubject<any>;
   private states = {};
 
-  constructor(private config: StoreConfigService) {
-    console.log('=== Store State Initialization ===');
-    console.log('Debug:', this.config.isDebug());
-    console.log('Cache:', this.config.isCache());
+  constructor(private config: StoreConfigService,
+              @Inject(storeLogger) @Optional() private logger: StoreLogger) {
+    this.log('=== Store State Initialization ===');
+    this.log('Debug:', this.config.isDebug());
+    this.log('Cache:', this.config.isCache());
 //    this.log('Store initialState', this.initialState);
 //    this.log('Store config', {
 //      debug: this.config.isDebug(),
@@ -38,9 +43,9 @@ export class StoreStateService {
     const scope = scopePath.join('/');
     if (!this.states[scope]) {
       if (this.config.isDebug()) {
-        console.log('=== Store Registration ===');
-        console.log('Scope:', scopePath);
-        console.log('InitialState', initialState);
+        this.log('=== Store Registration ===');
+        this.log('Scope:', scopePath);
+        this.log('InitialState', initialState);
       }
       this.states[scope] = new BehaviorSubject<any>(Immutable.fromJS(initialState));
       this.states[scope].subscribe(state => {
@@ -103,10 +108,10 @@ export class StoreStateService {
     let state$ = this.states[scope];
     this.log(`=== DISPATCHING [${scope}] ===`);
     if (Array.isArray(reducer)) {
-      console.log('Multi-dispatch');
+      this.log('Multi-dispatch');
       let state = state$.value;
       reducer.forEach((step, index) => {
-        console.log('Dispatch step', index, step);
+        this.log('Dispatch step', index, step);
         if (typeof step.reducer === 'function') {
           state = step.reducer(state);
         }
@@ -128,14 +133,19 @@ export class StoreStateService {
   };
 
   /**
-   * Log some info to console if logging is enabled.
+   * Log some info to console/logger if logging is enabled.
    *
    * @param message
    * @param params
    */
   private log(message, ...params) {
     if (this.config.isDebug()) {
-      console.log(message, ...params);
+      if (this.logger) {
+        this.logger.log(message, this.logId, ...params);
+      } else {
+        console.log(message, this.logId, ...params);
+      }
+      this.logId++;
     }
   }
 

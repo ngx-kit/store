@@ -6,11 +6,6 @@ import { StoreConfig } from './interfaces';
 export class StoreConfigService {
 
   constructor(private config: StoreConfig) {
-    if (this.isDebug()) {
-      console.log('=== Store Config Initialization ===');
-      console.log('Debug:', this.isDebug());
-      console.log('Cache:', this.isCache());
-    }
   }
 
   isDebug(): boolean {

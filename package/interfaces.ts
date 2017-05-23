@@ -4,3 +4,7 @@ export interface StoreConfig {
 }
 
 export type ScopePath = string[];
+
+export interface StoreLogger {
+  log(message?: any, ...optionalParams: any[]): void;
+}
