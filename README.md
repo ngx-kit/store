@@ -2,6 +2,8 @@
 
 Immutable store for Angular 2+ with fancy decorators.
 
+Currently in a deep beta!
+
 ## Install
 
 `npm install @ngx-kit/store immutable --save`

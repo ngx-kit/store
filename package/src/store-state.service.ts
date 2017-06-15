@@ -100,33 +100,37 @@ export class StoreStateService {
    * @param reducer
    */
   dispatch = (scopePath: ScopePath, reducer: any) => {
-    const scope = scopePath.join('/');
-    if (!this.states[scope]) {
-      throw new Error(`Scope "${scope}" not found!`);
-    }
-    let state$ = this.states[scope];
-    this.log(`=== DISPATCHING [${scope}] ===`);
-    if (Array.isArray(reducer)) {
-      this.log('Multi-dispatch');
-      let state = state$.value;
-      reducer.forEach((step, index) => {
-        this.log('Dispatch step', index, step);
-        if (typeof step.reducer === 'function') {
-          state = step.reducer(state);
+    if (reducer !== null) {
+      const scope = scopePath.join('/');
+      if (!this.states[scope]) {
+        throw new Error(`Scope "${scope}" not found!`);
+      }
+      let state$ = this.states[scope];
+      this.log(`=== DISPATCHING [${scope}] ===`);
+      if (Array.isArray(reducer)) {
+        this.log('Multi-dispatch');
+        let state = state$.value;
+        reducer.forEach((step, index) => {
+          this.log('Dispatch step', index, step);
+          if (step !== null) {
+            if (typeof step.reducer === 'function') {
+              state = step.reducer(state);
+            }
+            else {
+              throw new Error('Reducer should be a function');
+            }
+          }
+        });
+        state$.next(state);
+      }
+      else {
+        this.log('Dispatch', reducer);
+        if (typeof reducer.reducer === 'function') {
+          state$.next(reducer.reducer(state$.value));
         }
         else {
           throw new Error('Reducer should be a function');
         }
-      });
-      state$.next(state);
-    }
-    else {
-      this.log('Dispatch', reducer);
-      if (typeof reducer.reducer === 'function') {
-        state$.next(reducer.reducer(state$.value));
-      }
-      else {
-        throw new Error('Reducer should be a function');
       }
     }
   };

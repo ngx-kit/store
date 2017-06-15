@@ -17,7 +17,9 @@ export class Store {
   }
 
   dispatch = (reducer: any) => {
-    this.state.dispatch(this.getScopePath(), reducer);
+    if (reducer !== null) {
+      this.state.dispatch(this.getScopePath(), reducer);
+    }
   };
 
   getScope(): string {
