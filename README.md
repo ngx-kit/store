@@ -1,6 +1,6 @@
 # Angular Store
 
-Immutable store for Angular 2+ with fancy decorators.
+Immutable store for Angular with fancy decorators.
 
 Currently in a deep beta!
 
