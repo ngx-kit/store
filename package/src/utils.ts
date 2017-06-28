@@ -1,7 +1,5 @@
 declare const Immutable: any;
-
 // Store
-
 /**
  * Deep compare of two objects.
  * // @todo can we compare state in immutable.js state?
@@ -88,9 +86,7 @@ export function deepCompare(leftChain: any, rightChain: any) {
   }
   return true;
 }
-
 // Decorators
-
 /**
  * Call function with passing state or just return value of mapper.
  *
@@ -116,7 +112,6 @@ export function originalMapperWrapper(original: any, props: any[], state?: any, 
     return originalMapper;
   }
 }
-
 /**
  * Merge or set Immutable.js objects into state.
  *

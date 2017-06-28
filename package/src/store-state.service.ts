@@ -1,12 +1,10 @@
-import { Injectable, Inject, Optional, InjectionToken } from "@angular/core";
+import { Inject, Injectable, InjectionToken, Optional } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
-
-import { deepCompare } from './utils';
-import { StoreConfigService } from './store-config.service';
 import { ScopePath, StoreLogger } from './interfaces';
+import { StoreConfigService } from './store-config.service';
+import { deepCompare } from './utils';
 
 export const storeLogger = new InjectionToken('storeLogger');
-
 declare const Immutable: any;
 
 /**
@@ -14,29 +12,47 @@ declare const Immutable: any;
  */
 @Injectable()
 export class StoreStateService {
-
-  private logId = 0;
-  private state$: BehaviorSubject<any>;
-  private states = {};
-
-  constructor(private config: StoreConfigService,
-              @Inject(storeLogger) @Optional() private logger: StoreLogger) {
-    this.log('=== Store State Initialization ===');
-    this.log('Debug:', this.config.isDebug());
-    this.log('Cache:', this.config.isCache());
-//    this.log('Store initialState', this.initialState);
-//    this.log('Store config', {
-//      debug: this.config.isDebug(),
-//      cache: this.config.isCache(),
-//    });
-//     crate state subject
-//    this.state$ = new BehaviorSubject<any>(Immutable.fromJS(this.initialState));
-//     log state updating
-//    this.state$.subscribe(state => {
-//      this.log('============== STATE UPDATED ==============');
-//      this.log('state', state.toJS());
-//    });
-  }
+  /**
+   * Dispatch action to store.
+   *
+   * @param scopePath ScopePath
+   * @param reducer
+   */
+  dispatch = (scopePath: ScopePath, reducer: any) => {
+    if (reducer !== null) {
+      const scope = scopePath.join('/');
+      if (!this.states[scope]) {
+        throw new Error(`Scope "${scope}" not found!`);
+      }
+      let state$ = this.states[scope];
+      this.log(`=== DISPATCHING [${scope}] ===`);
+      if (Array.isArray(reducer)) {
+        this.log('Multi-dispatch');
+        let state = state$.value;
+        reducer.forEach((step, index) => {
+          this.log('Dispatch step', index, step);
+          if (step !== null) {
+            if (typeof step.reducer === 'function') {
+              state = step.reducer(state);
+            }
+            else {
+              throw new Error('Reducer should be a function');
+            }
+          }
+        });
+        state$.next(state);
+      }
+      else {
+        this.log('Dispatch', reducer);
+        if (typeof reducer.reducer === 'function') {
+          state$.next(reducer.reducer(state$.value));
+        }
+        else {
+          throw new Error('Reducer should be a function');
+        }
+      }
+    }
+  };
 
   register = (scopePath: ScopePath, initialState: any) => {
     const scope = scopePath.join('/');
@@ -93,47 +109,30 @@ export class StoreStateService {
     return mapper.mapper(state$.value);
   };
 
-  /**
-   * Dispatch action to store.
-   *
-   * @param scopePath ScopePath
-   * @param reducer
-   */
-  dispatch = (scopePath: ScopePath, reducer: any) => {
-    if (reducer !== null) {
-      const scope = scopePath.join('/');
-      if (!this.states[scope]) {
-        throw new Error(`Scope "${scope}" not found!`);
-      }
-      let state$ = this.states[scope];
-      this.log(`=== DISPATCHING [${scope}] ===`);
-      if (Array.isArray(reducer)) {
-        this.log('Multi-dispatch');
-        let state = state$.value;
-        reducer.forEach((step, index) => {
-          this.log('Dispatch step', index, step);
-          if (step !== null) {
-            if (typeof step.reducer === 'function') {
-              state = step.reducer(state);
-            }
-            else {
-              throw new Error('Reducer should be a function');
-            }
-          }
-        });
-        state$.next(state);
-      }
-      else {
-        this.log('Dispatch', reducer);
-        if (typeof reducer.reducer === 'function') {
-          state$.next(reducer.reducer(state$.value));
-        }
-        else {
-          throw new Error('Reducer should be a function');
-        }
-      }
-    }
-  };
+  private logId = 0;
+
+  private state$: BehaviorSubject<any>;
+
+  private states = {};
+
+  constructor(private config: StoreConfigService,
+              @Inject(storeLogger) @Optional() private logger: StoreLogger) {
+    this.log('=== Store State Initialization ===');
+    this.log('Debug:', this.config.isDebug());
+    this.log('Cache:', this.config.isCache());
+//    this.log('Store initialState', this.initialState);
+//    this.log('Store config', {
+//      debug: this.config.isDebug(),
+//      cache: this.config.isCache(),
+//    });
+//     crate state subject
+//    this.state$ = new BehaviorSubject<any>(Immutable.fromJS(this.initialState));
+//     log state updating
+//    this.state$.subscribe(state => {
+//      this.log('============== STATE UPDATED ==============');
+//      this.log('state', state.toJS());
+//    });
+  }
 
   /**
    * Log some info to console/logger if logging is enabled.
@@ -151,5 +150,4 @@ export class StoreStateService {
       this.logId++;
     }
   }
-
 }

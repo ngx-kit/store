@@ -1,9 +1,7 @@
 import { originalMapperWrapper, stateMergeOrSet } from './utils';
 
 declare const Immutable: any;
-
 // @todo log via logger
-
 /**
  * Get property from store by path.
  *
@@ -29,13 +27,12 @@ export function SelectProp(keyPath: string[]) {
           return originalMapper
               ? originalMapper(mapped)
               : mapped;
-        }
+        },
       }
     };
     return descriptor;
   };
 }
-
 /**
  * Get few properties by different paths in one selection.
  *
@@ -66,13 +63,12 @@ export function SelectPropCombined(keyPaths: string[][], indexKey = 'id') {
           return originalMapper
               ? originalMapper(mapped)
               : mapped;
-        }
+        },
       }
     };
     return descriptor;
   };
 }
-
 /**
  * Select indexKey values from collection items.
  *
@@ -99,13 +95,12 @@ export function SelectCollectionKeys(keyPath: string[], indexKey = 'id') {
           return originalMapper
               ? originalMapper(keys)
               : keys;
-        }
+        },
       }
     };
     return descriptor;
   };
 }
-
 /**
  * Select item from collection by indexKey value.
  *
@@ -140,13 +135,12 @@ export function SelectCollectionItem(keyPath: string[], indexKey = 'id', strict 
           return originalMapper
               ? originalMapper(jsItem)
               : jsItem;
-        }
+        },
       }
     };
     return descriptor;
   };
 }
-
 /**
  * Set (override if exists) property.
  *
@@ -172,7 +166,6 @@ export function SetProp(keyPath: string[]) {
     return descriptor;
   };
 }
-
 /**
  * Update (set or merge) property.
  *
@@ -198,7 +191,6 @@ export function UpdateProp(keyPath: string[]) {
     return descriptor;
   };
 }
-
 /**
  * Set (override if exists) item in array.
  *
@@ -233,7 +225,6 @@ export function SetCollectionItem(keyPath: string[], indexKey = 'id') {
     return descriptor;
   };
 }
-
 /**
  * Update (set or merge) item in array.
  *
@@ -275,7 +266,6 @@ export function UpdateCollectionItem(keyPath: string[], indexKey = 'id', strict 
     return descriptor;
   };
 }
-
 /**
  * Remove item from array.
  *
@@ -317,7 +307,6 @@ export function DeleteCollectionItem(keyPath: string[], indexKey = 'id', strict 
     return descriptor;
   };
 }
-
 /**
  * Set (override existed items) or push new items to array.
  *

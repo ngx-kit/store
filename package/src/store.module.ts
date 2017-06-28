@@ -1,8 +1,7 @@
-import { NgModule, ModuleWithProviders, Optional, SkipSelf, InjectionToken } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-import { Store } from "./store";
+import { InjectionToken, ModuleWithProviders, NgModule, Optional, SkipSelf } from '@angular/core';
 import { StoreConfig } from './interfaces';
+import { Store } from "./store";
 import { StoreConfigService } from './store-config.service';
 import { StoreStateService } from './store-state.service';
 
@@ -18,7 +17,6 @@ export const storeConfig = new InjectionToken('storeConfig');
   declarations: [],
 })
 export class StoreModule {
-
   // @todo one-time config guard
   static config(config: StoreConfig): ModuleWithProviders {
     return {
@@ -30,7 +28,7 @@ export class StoreModule {
           useFactory: setupConfig,
           deps: [
             storeConfig,
-          ]
+          ],
         },
         StoreStateService,
       ],
@@ -49,21 +47,19 @@ export class StoreModule {
             storeInitialState,
             StoreConfigService,
             StoreStateService,
-            [Store, new Optional(), new SkipSelf()]
-          ]
+            [Store, new Optional(), new SkipSelf()],
+          ],
         },
         {provide: storeScope, useValue: scope},
         {provide: storeInitialState, useValue: initialState},
       ],
     };
   }
-
 }
 
 export function setupConfig(config: StoreConfig) {
   return new StoreConfigService(config);
 }
-
 export function setupStore(scope: string,
                            initialState: any,
                            config: StoreConfigService,

@@ -1,6 +1,6 @@
 export interface StoreConfig {
-  debug: boolean;
   cache: boolean;
+  debug: boolean;
 }
 
 export type ScopePath = string[];

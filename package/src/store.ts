@@ -1,11 +1,23 @@
 import { Injectable } from '@angular/core';
-
 import { ScopePath } from './interfaces';
 import { StoreConfigService } from './store-config.service';
 import { StoreStateService } from './store-state.service';
 
 @Injectable()
 export class Store {
+  dispatch = (reducer: any) => {
+    if (reducer !== null) {
+      this.state.dispatch(this.getScopePath(), reducer);
+    }
+  };
+
+  stream = (mapper: any): any => {
+    return this.state.stream(this.getScopePath(), mapper);
+  };
+
+  value = (mapper: any): any => {
+    return this.state.value(this.getScopePath(), mapper);
+  };
 
   constructor(private scope: string,
               private initialState: any,
@@ -15,12 +27,6 @@ export class Store {
     // reg in global store
     this.state.register(this.getScopePath(), this.initialState);
   }
-
-  dispatch = (reducer: any) => {
-    if (reducer !== null) {
-      this.state.dispatch(this.getScopePath(), reducer);
-    }
-  };
 
   getScope(): string {
     return this.scope;
@@ -36,13 +42,4 @@ export class Store {
     path.push(this.scope);
     return path;
   }
-
-  stream = (mapper: any): any => {
-    return this.state.stream(this.getScopePath(), mapper);
-  };
-
-  value = (mapper: any): any => {
-    return this.state.value(this.getScopePath(), mapper);
-  };
-
 }
